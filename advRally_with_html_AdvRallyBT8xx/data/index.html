@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADV Rally Control Panel</title>
+    <script>
+        // Character families and their options
+        const familyNames = ["Uppercase", "Lowercase", "Number", "Sign", "Media", "Special"];
+        const charFamilies = {
+            1: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'],
+            2: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'],
+            3: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'],
+            4: ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '-', '+', '_', '=', '[', ']', '{', '}', '|', '\\', ';', ':', '\'', '"', ',', '.', '/', '<', '>', '?'],
+            5: ["Next Track", "Previous Track", "Stop", "Play/Pause", "Mute", "Volume Up", "Volume Down", "WWW Home", "My Computer",
+                    "Calculator", "WWW Bookmarks", "WWW Search", "WWW Stop", "WWW Back", "Media Selection", "Email Reader"],
+            6: ["Left Ctrl", "Left Shift", "Left Alt", "Left GUI", "Up Arrow", "Down Arrow", "Left Arrow", "Right Arrow", "Backspace", "Tab", "Enter", "Escape", "Insert",
+                    "Print Screen",  "Delete",  "Page Up",  "Page Down",  "Home",  "End",  "Caps Lock",  "F1",  "F2",  "F3",  "F4",  "F5",  "F6",  "F7",  "F8",  "F9",  "F10",   "F11",  "F12"]
+        };
+
+        // Per-mode default selections
+        const modeDefaults = [  [0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0,0, 0],
+                                [5,6, 5,7, 5,2, 5,1, 5,4, 5,6, 5,7, 5,5, 5,15, 0],
+                                [6,5, 6,6, 6,7, 6,8, 2,3, 4,12, 4,11, 2,4, 6,11, 1],
+                                [1,2, 2,20, 4,7, 5,15, 6,12, 2,12, 2,12, 3,8, 1,1, 1]
+        ]
+        let modeCurrent = structuredClone(modeDefaults);
+        let keyMode = 1; // current active mode from backend
+        let uiMode = structuredClone(keyMode); // current active UI mode tab
+        const controlFields = ['up','down','left','right','push','tglUp','tglDown','btn','push2'];
+    </script>
+    <style>
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            background: #f4f6f8;
+            margin: 0;
+            padding: 0;
+            color: #222;
+        }
+        .container {
+            max-width: 400px;
+            margin: 24px auto;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(90deg, #ff9800 0%, #ff5722 100%);
+            text-align: center;
+            padding: 16px 0 8px 0;
+            margin: 0 0 8px 0;
+        }
+        .header-h2 {
+            text-align:center;
+            margin:0px 0 0px 0;
+            color:#fff;
+            font-family:inherit;
+            border-radius:12px;
+            padding:12px 0;
+            font-weight:bolder;
+            font-size: 36px;
+        }
+        .claster {
+            flex: 1 1 0;
+            padding: 0 0 8px 0;
+            text-align: center;
+            background: #FFF;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            transition: background 0.2s;
+            border-bottom: none;
+        }
+        .claster-title {
+            width: 100%;
+            text-align: center;
+            margin: 2px 0 2px 0;
+            font-size: 1.2em;
+            font-weight: 900;
+        }
+        .claster-boxline {
+            display: flex;
+            justify-content: space-between;
+            padding: 16px;
+            background: #f4f6f8;
+        }
+        .claster-main {
+            display: block;
+        }
+        .claster-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+        .box {
+            flex: 1;
+            margin: 0 8px;
+            padding: 6px 6px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: bold;
+            letter-spacing: -0.05em;
+            background: #f8fafc;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(25,118,210,0.08);
+            transition: background 0.2s;
+            min-width: 90px
+        }
+        .box-active {
+            background: #1976d2;
+            color: #fff;
+        }
+        .box-get {
+            background: #e53935;
+            color: #FFF;
+        }
+        .box-set {
+            background: #1976d2;
+            color: #fff;
+        }
+        .box-dropdown {
+            background: #f0f0f0;
+            color: #222;
+        }
+        .box-text {
+            background: transparent;
+            cursor: unset;
+            font-weight: 400;
+            padding: 0 8px 0 8px;
+            width: 4em;
+        }
+        .box-default {
+            background: #ffa726;
+            color: #fff;
+        }
+        .box:disabled {
+            background: #fff;
+            color: #222;
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2 class="header-h2" id="unitHeader">AdvRallyBT loading...</h2>
+        </div>
+        <div id="disconnectBanner" style="display:none;position:fixed;top:0;left:0;right:0;background:#c62828;color:#fff;padding:8px 12px;text-align:center;z-index:9999;">Device disconnected. Trying to reconnect…</div>
+        <div class="claster-title">
+                <span class="">Active Mode</span>
+        </div>
+        <div class="claster" id="modeSelect">
+            <div class="claster-boxline">
+                <select class="box box-dropdown" id="keyMode" onchange="updateSetButtonState();">
+                    <option value="1">Mode 1</option>
+                    <option value="2">Mode 2</option>
+                    <option value="3">Mode 3</option>
+                </select>
+                <button class="box box-get" id="getActiveMode" onclick="getActiveMode()">Current</button>
+                <button class="box box-set" id="setActiveMode" onclick="setActiveMode()" disabled>Save</button>
+            </div>
+        </div>
+        <div class="claster-title">
+                <span class="">Edit Modes</span>
+            </div>
+        <div class="claster-boxline" id="modeTabs">
+            <button class="tab box" style="display:none;"></button>
+            <button class="tab box box-active" onclick="selectTab(1)">Mode 1</button>
+            <button class="tab box" onclick="selectTab(2)">Mode 2</button>
+            <button class="tab box" onclick="selectTab(3)">Mode 3</button>
+        </div>
+        <div class="claster-main" id="controls">
+            <div class="claster-row">
+                <span class="box-text">Up</span>
+                <select class="box" id="upFamily" onchange="dropdownFamilyChanged('up')"></select>
+                <select class="box" id="upSelect" onchange="dropdownSelectChanged('up')"></select>
+            </div>
+            <div class="claster-row">
+                <span class="box-text">Down</span>
+                <select class="box" id="downFamily" onchange="dropdownFamilyChanged('down')"></select>
+                <select class="box" id="downSelect" onchange="dropdownSelectChanged('down')"></select>
+            </div>
+            <div class="claster-row">
+                <span class="box-text">Left</span>
+                <select class="box" id="leftFamily" onchange="dropdownFamilyChanged('left')"></select>
+                <select class="box" id="leftSelect" onchange="dropdownSelectChanged('left')"></select>
+            </div>
+            <div class="claster-row">
+                <span class="box-text">Right</span>
+                <select class="box" id="rightFamily" onchange="dropdownFamilyChanged('right')"></select>
+                <select class="box" id="rightSelect" onchange="dropdownSelectChanged('right')"></select>
+            </div>
+            <div class="claster-row">
+                <span class="box-text">Push</span>
+                <select class="box" id="pushFamily" onchange="dropdownFamilyChanged('push')"></select>
+                <select class="box" id="pushSelect" onchange="dropdownSelectChanged('push')"></select>
+            </div>
+            <div class="claster-row">
+                <span class="box-text" id="advancedLabel">Advanced</span>
+                <select class="box" id="push2Family" disabled onchange="dropdownFamilyChanged('push2')"></select>
+                <select class="box" id="push2Select" disabled onchange="dropdownSelectChanged('push2')"></select>
+            </div>
+            <div class="claster-row" style="margin-top:-8px; margin-bottom:8px; align-items:center; justify-content: flex-end;">
+                <input type="checkbox" id="addSecondAction" style="width:16px; height:16px; margin-right:8px;" onclick="updateSecondOptions(this.checked)" />
+                <label for="addSecondAction" style="font-size:0.85em; color:#555; text-align:left;">Enable Advanced to add a second action to the Push button</label>
+            </div>
+            <div id="advControls" style="display: none;">
+            <div class="claster-row">
+                <span class="box-text">T Up</span>
+                <select class="box" id="tglUpFamily" onchange="dropdownFamilyChanged('tglUp')"></select>
+                <select class="box" id="tglUpSelect" onchange="dropdownSelectChanged('tglUp')"></select>
+            </div>
+            <div class="claster-row">
+                <span class="box-text">T Down</span>
+                <select class="box" id="tglDownFamily" onchange="dropdownFamilyChanged('tglDown')"></select>
+                <select class="box" id="tglDownSelect" onchange="dropdownSelectChanged('tglDown')"></select>
+            </div>
+            <div class="claster-row">
+                <span class="box-text">Button</span>
+                <select class="box" id="btnFamily" onchange="dropdownFamilyChanged('btn')"></select>
+                <select class="box" id="btnSelect" onchange="dropdownSelectChanged('btn')"></select>
+            </div>
+            </div> 
+          </div>
+        <div class="claster-boxline">
+            <button class="box box-get" onclick="readFromUnit()">Current</button>
+            <button class="box box-default" onclick="resetToDefault()">Default</button>
+            <button class="box box-set" onclick="updateUnit()">Save</button>
+        </div>
+        <div class="claster-title">
+            <span>LED Brightness</span>
+        </div>
+        <div class="claster-boxline">
+            <input type="range" id="ledBrightness" min="0" max="100" step="1" class="box" style="flex:2" onchange="ledSliderChanged()" />
+            <span id="ledBrightnessLabel" class="box box-text" style="text-align:center; min-width:64px;">70%</span>
+            <button class="box box-set" onclick="setLedBrightness()">Set</button>
+        </div>
+    </div>
+    <script>
+        // get Unit Name
+        function getUnitName() {
+            fetch('/unit')
+                .then(r => r.json())
+                .then(data => {
+                    if (data && data.unitname) {
+                        const h = document.getElementById('unitHeader');
+                        if (h) h.textContent = data.unitname;
+                    }
+                });
+        }
+
+        // Get current mode from server
+        function getActiveMode() {
+            fetch(`/getActiveMode`)
+                .then(response => response.json())
+                .then(data => {
+                    keyMode = data.keyMode;
+                    document.getElementById('keyMode').value = keyMode;
+                    updateSetButtonState();
+                    //populateSelects(data.modeIndex);
+                })
+                .catch(error => console.error('Error fetching current keyMode:', error));
+            console.log('getActiveMode returning:', keyMode);
+            return keyMode;
+        }
+        function setActiveMode(param, value) {
+            value = document.getElementById('keyMode').value;
+            keyMode = value;
+            fetch(`/setActiveMode?keyMode=${value}`, { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Active mode set:', data);
+                    updateSetButtonState();
+                })
+                .catch(error => console.error('Error setting active keyMode:', error));
+        }
+
+        function isAdventureMode() {
+            let advMode = false;
+            fetch('/isAdventure')
+                .then(r => r.json())
+                .then(data => {
+                    if (data && typeof data.isAdventure === 'boolean') {
+                        advMode = data.isAdventure;
+                        console.log('isAdventureMode returning:', advMode);
+                        if (advMode) { document.getElementById('advControls').style.display = 'block'; }
+                        else { document.getElementById('advControls').style.display = 'none'; }
+                    }
+                })
+                .catch(err => console.error('Error checking Adventure mode:', err));
+        }
+
+        // Disable Save button if selected mode equals current keyMode
+        function updateSetButtonState() {
+            const sel = document.getElementById('keyMode').value;
+            document.getElementById('setActiveMode').disabled = (keyMode == sel);
+        }
+
+        // mode tabs
+        function selectTab(idx) {
+            const tabs = document.querySelectorAll('#modeTabs .box');
+            tabs.forEach((tab, i) => {
+                tab.classList.toggle('box-active', i === idx);
+            });
+            uiMode = idx;
+            updateFamilyDropdown(uiMode);
+            populateSelectDropdowns();
+        }
+
+        //dropdown helpers
+        function addOption(keyElement,arrOptions) {
+            keyElement.innerHTML = '';
+            let i = 1;
+            arrOptions.forEach(opt => {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = opt;
+                keyElement.appendChild(option);
+                i = i + 1;
+            });
+        }
+
+        // Populate family dropdowns
+        function populateFamilyDropdowns() {
+            controlFields.forEach(ctrl => {
+                const familySelect = document.getElementById(ctrl + 'Family');
+                if (!familySelect) return;
+                addOption(familySelect, familyNames);
+            });
+        }
+
+        function updateFamilyDropdown() {
+           let i = 0;
+            controlFields.forEach(ctrl => {
+                const familySelect = document.getElementById(ctrl + 'Family');
+                if (!familySelect) return;
+                familySelect.value = modeCurrent[uiMode][i];
+                i = i + 2;
+            });
+        }
+
+        function populateSelectDropdowns() {
+            controlFields.forEach(ctrl => {
+                const charSelect = document.getElementById(ctrl + 'Select');
+                if (!charSelect) return;
+                const familySelect = document.getElementById(ctrl + 'Family');
+                if (!familySelect) return;
+                const family = familySelect.value;
+                addOption(charSelect, charFamilies[family]);
+            });
+            updateSelectDropdowns();
+        }
+
+        function updateSelectDropdowns() {
+            let i = 0;
+            controlFields.forEach(ctrl => {
+                const charSelect = document.getElementById(ctrl + 'Select');
+                if (!charSelect) return;
+                charSelect.value = modeCurrent[uiMode][i+1];
+                i = i + 2;
+            });
+            updateSecondOptions(modeCurrent[uiMode][18]);
+        }
+
+        function updateSecondOptions(addSecondAction = modeCurrent[uiMode][18]) {
+            console.log('Advanced checkbox changed from:', modeCurrent[uiMode][18], 'to', addSecondAction);
+            document.getElementById('addSecondAction').checked = addSecondAction;
+            //if (cBox) cBox.checked = addSecondAction ? true : false;
+            // Set Advanced selects enabled/disabled based on checkbox
+            document.getElementById('push2Family').disabled = !addSecondAction;
+            document.getElementById('push2Select').disabled = !addSecondAction;
+            // Visual feedback for label
+            document.getElementById('advancedLabel').style.opacity = !addSecondAction ? '50%' : '';
+            if (addSecondAction) {addSecondAction = 1} else {addSecondAction = 0};
+            modeCurrent[uiMode][18] = addSecondAction;
+        }
+
+        function dropdownFamilyChanged(ctrl) {
+            console.log('Family changed for', ctrl);
+            const familySelect = document.getElementById(ctrl + 'Family');
+            if (!familySelect) return;
+            const charSelect = document.getElementById(ctrl + 'Select');
+            if (!charSelect) return;
+            const family = familySelect.selectedIndex + 1;
+            addOption(charSelect, charFamilies[family]);
+            charSelect.value = 1;
+            // update modeCurrent
+            let i = controlFields.indexOf(ctrl) * 2;
+            modeCurrent[uiMode][i] = family;
+            modeCurrent[uiMode][i+1] = charSelect.value;
+        }
+
+        function dropdownSelectChanged(ctrl) {
+            console.log('Select changed for', ctrl);
+            const charSelect = document.getElementById(ctrl + 'Select');
+            if (!charSelect) return;
+            let i = controlFields.indexOf(ctrl) * 2;
+            modeCurrent[uiMode][i+1] = charSelect.selectedIndex + 1;
+        }
+
+        function blobToArray(blob) {
+            return blob.split(',').map(x => parseInt(x, 10));
+            for (let i = 0; i < blob.length; i++) {
+                console.log(blob.charCodeAt(i));
+            }
+        }
+
+        function readFromUnit(modeToRead = uiMode) {
+            console.log('Reading from unit for mode', modeToRead);
+            fetch(`/getMode?idx=${modeToRead}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data && data.blob) {
+                        //const blob = modeCurrent[modeToRead].blob;
+                        console.log('blob: ', data.blob)
+                        modeCurrent[modeToRead] = blobToArray(data.blob);
+                        if (modeToRead === uiMode) {
+                            updateFamilyDropdown();
+                            populateSelectDropdowns();
+                        }
+                    }
+                })
+                .catch(err => console.error('Error reading mode from unit:', err));
+        }
+
+        function resetToDefault() {
+            console.log('From: ', modeCurrent[uiMode]);
+            console.log('Resetting to default for mode', modeDefaults[uiMode]);
+            modeCurrent[uiMode] = structuredClone(modeDefaults[uiMode]);
+            updateFamilyDropdown();
+            populateSelectDropdowns();
+        }
+
+        function updateUnit() {
+            console.log('From: ', modeCurrent[uiMode]);
+            console.log('Updating unit for mode', modeCurrent[uiMode]);
+            fetch(`/setMode?idx=${uiMode}&blob=${modeCurrent[uiMode]}`, { method: 'POST' })
+                .then(r => r.json())
+                .then(data => {
+                    if (data && data.ok) {
+                        console.log('Mode updated successfully on unit');
+                    }
+                })
+                .catch(err => console.error('Error updating mode on unit:', err));
+        }
+
+        function ledSliderChanged() {
+            const val = document.getElementById('ledBrightness').value;
+            document.getElementById('ledBrightnessLabel').textContent = `${val}%`;
+        }
+
+        function getLedBrightness() {
+            // Load current brightness
+            fetch('/getLed')
+                .then(r => r.json())
+                .then(data => {
+                    if (typeof data.brightness === 'number') {
+                            document.getElementById('ledBrightness').value = data.brightness;
+                            document.getElementById('ledBrightnessLabel').textContent = `${data.brightness}%`;
+                        }
+                    })
+                    .catch(err => console.error('Error loading LED brightness:', err));
+        }
+
+        // Set LED brightness
+        function setLedBrightness() {
+            const val = document.getElementById('ledBrightness').value;
+            fetch(`/setLed?brightness=${val}`, { method: 'POST' })
+                .then(r => r.json())
+                .then(data => {
+                    if (data && data.ok) {
+                        document.getElementById('ledBrightnessLabel').textContent = `${data.brightness}%`;
+                    }
+                })
+                .catch(err => console.error('Error setting LED brightness:', err));
+        }
+
+        // Ping function to check connectivity
+        (function () {
+            const banner = document.getElementById('disconnectBanner');
+            async function checkPing() {
+                try {
+                const res = await fetch('/ping', { cache: 'no-store' });
+                let alive = false;
+                if (res.ok) {
+                    const data = await res.json().catch(() => null);
+                    alive = data && data.ping === true;
+                }
+                banner.style.display = alive ? 'none' : 'block';
+                } catch (e) {
+                banner.style.display = 'block';
+                }
+            }
+            checkPing();
+            setInterval(checkPing, 10000);
+        })();
+        
+        // Initialize page load
+        window.onload = function() {
+            const xhr = new XMLHttpRequest();
+            xhr.open("GET", "/getActiveMode", false); // false = synchronous
+            xhr.send(null);
+
+            if (xhr.status === 200) { keyMode = JSON.parse(xhr.responseText).keyMode; }
+            console.log('Synchronous getActiveMode returned:', keyMode);
+
+            getUnitName();
+            isAdventureMode();
+
+            document.getElementById('keyMode').value = keyMode;
+            updateSetButtonState();
+            uiMode = keyMode
+            readFromUnit(1);
+            readFromUnit(2);
+            readFromUnit(3);
+            getLedBrightness();
+
+            populateFamilyDropdowns();
+
+            selectTab(uiMode);
+        }
+    </script>
+</body>
+</html>

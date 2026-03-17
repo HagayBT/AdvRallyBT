@@ -1,0 +1,154 @@
+Adventure Rally and Day Use Bluetooth Controller — User Manual
+https://hagayb.wixsite.com/advrallybt
+
+- Purpose:
+  - Built for motorcycles, enduro and adventure, 5 or 8 functions
+  - Primary: Control motorcycle Rally Roadbook apps (e.g., Piste Roadbook on Android, Rally Roadbook on Apple tablet)
+  - Secondary: Control navigation apps (e.g., OsmAnd)
+  - Everyday: Media control and conferencing (e.g., Zoom)
+
+- Versions:
+  - Enduro, left to the left handlebar unit, 3 buttons and 1 toggle (5 functions)
+  - Adventure: under the left handlebar unit, 3 buttons and 1 toggle (5 functions)
+  - Adventure Pro: under the left handlebar unit, 1 joystick, 1 toggle and 1 button (8 functions)
+
+- Method:
+  - Programing Arduino ESP32 Stamp-Pico by M5
+  - Bluetooth profile: BLE Keyboard (HID)
+  - Local UI: Built-in Wi‑Fi Access Point serving a configuration page from the device
+  - Key combination for quick properties changes 
+
+- Quick start
+1) Power on - Connect to USB power source
+  - The status LED will slow-blink when not connected to Bluetooth.
+  * A temporary Wi‑Fi Access Point (AP) starts automatically for 2 minutes.
+
+2) Pair over Bluetooth (first time)
+  - On your phone/tablet, enable Bluetooth and scan for new devices.
+  - Select: AdvRallyBT8xx (device name, xx represents the unit number)
+  - Accept any pairing prompts. On iOS you may need to "Pair" and allow the keyboard to connect.
+  - When connected, the blue component of the RGB LED turns on (see LED legend below).
+
+3) Open the Wi‑Fi setup page (optional)
+  - While the AP is on (first 2 minutes after boot or after you restart it):
+  - SSID: AdvRallyBT8xx (device name, xx represents the unit number)
+  - Password: 12345678
+  - Open the following address from your preferred browser http://192.168.4.1/
+  - Once connected, Unit name will be displayed
+
+- From the Wi-Fi setup page you can:
+  - View/set Active Mode (1..3)
+  - Read/update per-mode key mappings
+  - Add second function for push
+  - Read current configuration, update and revert to default.
+  - Set LED brightness
+  * The AP auto-turns off after 2 minutes of inactivity. You can bring it back with a button combo (see below).
+
+- Buttons and default mapping
+  * Enduro an Adventure version use the 5 first function
+  - Physical buttons 5 functions: Button 1, Button 2, Button 3, Toggle Up, Toggle Down
+  - Physical buttons 8 functions: Joystick Up, Down, Left, Right, Push, Toggle Up, Toggle Down, Button
+
+- Three operating modes with default actions, easily changed from the Wi-Fi UI:
+  - Mode 1 (Media control , Music and Zoom):
+    - UP: Volume Up
+    - DOWN: Volume Down
+    - LEFT: Previous Track
+    - RIGHT: Next Track
+    - PUSH: Play/Pause
+    - TOGGLE UP: Volume Up
+    - TOGGLE DOWN: Volume Down
+    - BUTTON: Mute
+
+  - Mode 2 (Navigation/Arrows, OsmAnd keys or Android control):
+    - UP: Up Arrow
+    - DOWN: Down Arrow
+    - LEFT: Left Arrow
+    - RIGHT: Right Arrow
+    - PUSH: Enter/Return
+    - PUSH (second action): 'c'
+    - TOGGLE UP: '+'
+    - TOGGLE DOWN: '-'
+    - BUTTON: 'd'
+
+  - Mode 3 (For you to customize):
+    - UP: 'B'
+    - DOWN: 'T'
+    - LEFT: '&'
+    - RIGHT: Media Selection
+    - PUSH: Escape
+    - PUSH (second action): 'A'
+    - TOGGLE UP: 'l'
+    - TOGGLE DOWN: 'l'
+    - BUTTON: '8'
+
+- On the road configuration, 
+  - To enter configuration mode use the following Key combinations (hold for ≥ 2 seconds)
+    - 5 function unit: hold Toggle up + push button
+    - 8 function unit: hold joystick push + button
+ 
+  - While led blinks rappidly:
+    - Change mode up: Joystick Right → Mode 1→2→3 (stops at 3)
+    - Change mode down: Joystick Left→ Mode 3→2→1 (stops at 1)
+    - Restart Wi‑Fi AP: Joystick Push → Wi-Fi AP turns on;
+    - Increase led brightness: Joystick Up
+    - Decrease led brightness: Joystick Down
+
+- Factory reset (hardware pin):
+    - Hold the Unpaire button (GPIO39) > 3 s → rapid blink ×10
+    * Clears all Bluetooth bonds and all device settings, then restarts.
+
+- LED indications
+  - Main LED (one color, PWM):
+  - Short flash on key release (feedback)
+  - Slow blink when Bluetooth is NOT connected
+  - Fast blink when in Key Combination mode
+  - Confirm mode change: Device blinks 1/2/3 times for Mode 1/2/3
+  - Brightness is user-configurable from the Wi-Fi setup page or with Key Combination
+  - Inner  on board RGB SK6812 (on PIN_ILED):
+    - additive color shows system state
+      - BLUE: Bluetooth connected
+      - GREEN: Wi‑Fi AP is active
+      - RED: Recent web activity (last ~2 s)
+
+- Wi‑Fi behavior
+  - Starts as an AP on boot for 2 minutes.
+  - Auto-off after 2 minutes without page activity to save power and reduce interference.
+  - Bring the AP back any time with Key Combination
+
+- Pinout / wiring reference (ESP32)
+  - GPIO26: UP button (to GND, internal pull-up enabled)
+  - GPIO18: DOWN button (to GND, internal pull-up enabled)
+  - GPIO21: LEFT button (to GND, internal pull-up enabled)
+  - GPIO19: RIGHT button (to GND, internal pull-up enabled)
+  - GPIO22: PUSH button (to GND, internal pull-up enabled)
+  - GPIO25: Main LED (PWM output)
+  - GPIO27: SK6812 DIN (RGB status LED)
+  - GPIO39: UNPAIRE (input-only; requires external pull-up; active-low to GND)
+  - GPIO01: Toggle Up (for Adventure Pro)
+  - GPIO03: Toggle Down (for Adventure Pro)
+  - GPIO00: Button (for Adventure Pro)
+
+- Notes for apps
+  - Tested roadbook apps (Piste Roadbook/Rally Roadbook):
+  * Modes (Mode 1) can be customized from the web page to match key bindings.
+
+  - Navigation apps (OsmAnd):
+  * Arrows/Enter (Mode 2) are commonly useful; tweak as needed in the web UI.
+
+Troubleshooting
+- Can’t see the setup page:
+  - Ensure you’re connected to the AP "AdvRallyBT8xx" and browse to http://192.168.4.1/
+  - If the AP timed out, power off and on again or use key Combination
+
+- No Bluetooth actions:
+  - Check the device is paired and connected; the RGB LED should include BLUE
+  - Some apps require the app window to have focus to receive keys
+  - Apple OS / Android 13 or higher is required 
+
+- Factory reset:
+  - Use the UNPAIRE button (GPIO39) > 3 s to clear all bonds and settings; the device will reboot.
+
+Ownership / legal
+- The code and design are proprietary to: Hagay Ben-Tovim. All rights reserved.
+- For personal use on public roads, obey local laws and ride safely. Test controls off-road before riding.

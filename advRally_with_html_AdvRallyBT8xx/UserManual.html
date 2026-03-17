@@ -1,0 +1,381 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AdvRallyBT — Adventure Rally & Day Use Bluetooth Controller | User Manual</title>
+<meta name="description" content="User manual for AdvRallyBT DIY Bluetooth handlebar controller for roadbook rally, navigation, and media control." />
+<style>
+  /* ========= THEME ========= */
+  :root{
+    --bg:#0c1117; --surface:#0f1622; --card:#121b29; --muted:#9fb0c5;
+    --text:#eaf2ff; --accent:#e63946; --accent-2:#2bb673; --line:#1e2a3a;
+    --shadow:0 12px 30px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.03);
+    --radius:18px;
+  }
+  /* Light mode if preferred */
+  @media (prefers-color-scheme: light){
+    :root{ --bg:#f6f8fb; --surface:#ffffff; --card:#ffffff; --text:#0b1523; --muted:#58677a; --line:#e7edf5; --shadow:0 10px 24px rgba(0,20,60,.08);}
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0; padding:0; background:var(--bg); color:var(--text);
+            font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+            line-height:1.65;}
+  a{color:var(--accent); text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  /* ========= LAYOUT ========= */
+  .shell{display:grid; grid-template-columns: 300px 1fr; gap:28px; max-width:1200px; margin:0 auto; padding:28px;}
+  @media (max-width: 980px){ .shell{grid-template-columns: 1fr} }
+
+  header.hero{
+    background:linear-gradient(135deg, rgba(230,57,70,.12), rgba(43,182,115,.12)) , var(--surface);
+    border:1px solid var(--line); border-radius:24px; padding:28px; box-shadow:var(--shadow); margin-bottom:18px;
+  }
+  .hero h1{margin:0 0 6px; font-size: clamp(24px, 3.4vw, 36px)}
+  .hero p{margin:.3rem 0 0; color:var(--muted)}
+  .badges{display:flex; gap:10px; flex-wrap:wrap; margin-top:14px}
+  .badge{background:var(--card); border:1px solid var(--line); color:var(--muted); padding:6px 10px; border-radius:999px; font-size:12px}
+
+  /* ========= TOC ========= */
+  nav.toc{
+    position:sticky; top:18px; align-self:start; background:var(--surface);
+    border:1px solid var(--line); border-radius:var(--radius); padding:16px; box-shadow:var(--shadow)
+  }
+  .toc h3{margin:0 0 8px; font-size:14px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted)}
+  .toc ol{list-style:none; margin:0; padding:0}
+  .toc li + li{margin-top:6px}
+  .toc a{display:block; padding:6px 8px; border-radius:10px; color:var(--text); transition: color .15s ease, background-color .15s ease}
+  .toc a:hover{background:rgba(255,255,255,.06)}
+  .toc a.active{font-weight:700}
+  .toc .sub{margin-left:10px; margin-top:4px}
+
+  /* ========= CONTENT ========= */
+  section{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+          padding:20px; box-shadow:var(--shadow); margin-bottom:18px}
+  /* Ensure Notes section has a minimum height on screen */
+  #notes{min-height:400px}
+  h2{margin:.2rem 0 12px; font-size: clamp(18px, 2.2vw, 24px)}
+  h3{margin:14px 0 8px; font-size: clamp(16px, 2vw, 20px)}
+  p{margin:.2rem 0 .8rem}
+  ul,ol{margin:.1rem 0 .9rem .9rem}
+  code.k{background:rgba(255,255,255,.06); padding:2px 6px; border-radius:6px; font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace}
+  .grid-2{display:grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap:14px}
+  @media (max-width:780px){ .grid-2{grid-template-columns:1fr} }
+
+  .callout{
+    display:flex; gap:12px; padding:12px; border:1px dashed var(--line); border-radius:14px; background:var(--card); color:var(--muted)
+  }
+  .ok{border-color:#2bb67340}
+  .warn{border-color:#e6394640}
+  .chip{display:inline-block; padding:3px 8px; font-size:12px; border-radius:999px; border:1px solid var(--line); background:var(--card); color:var(--muted); margin-right:6px}
+
+  table.kv{width:100%; border-collapse:separate; border-spacing:0 8px}
+  .kv th,.kv td{padding:10px 12px; border-top:1px solid var(--line); border-bottom:1px solid var(--line)}
+  .kv th:first-child,.kv td:first-child{border-left:1px solid var(--line); border-radius:12px 0 0 12px}
+  .kv th:last-child,.kv td:last-child{border-right:1px solid var(--line); border-radius:0 12px 12px 0}
+  .kv th{background:var(--card); color:var(--muted); text-align:left; font-weight:600}
+
+  /* Print */
+  @media print{
+    .shell{display:block; max-width: none; padding:0}
+    nav.toc{position:static; page-break-after:avoid}
+    section{page-break-inside:avoid}
+    a[href^="http"]::after{content:" (" attr(href) ")"; font-size:12px; color:#666}
+    /* Notes page: start on a new sheet and leave it mostly blank for handwriting */
+    #notes{page-break-before: always}
+    #notes .print-blank{min-height:85vh}
+  }
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <!-- TOC -->
+  <nav class="toc" aria-label="Table of contents">
+    <h3>Contents</h3>
+    <ol>
+      <li><a href="#purpose">Purpose</a></li>
+      <li><a href="#versions">Versions</a></li>
+      <li><a href="#technology">Technology</a></li>
+      <li><a href="#quick-start">Quick Start</a></li>
+      <li><a href="#mapping">Default Button Mapping</a></li>
+      <li><a href="#modes">Modes & Actions</a></li>
+      <li><a href="#on-the-road">On-the-Road Configuration</a></li>
+      <li><a href="#reset">Factory Reset</a></li>
+      <li><a href="#led">LED Indicators</a></li>
+      <li><a href="#pinout">Pinout (ESP32)</a></li>
+      <li><a href="#apps">Notes for Apps</a></li>
+      <li><a href="#troubleshooting">Troubleshooting</a></li>
+      <li><a href="#legal">Legal & Safety</a></li>
+      <li><a href="#notes">Notes</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="hero" role="banner">
+      <h1>AdvRallyBT — Adventure Rally &amp; Day Use Bluetooth Controller</h1>
+      <p>DIY Bluetooth handlebar controller for rally roadbook, navigation, and everyday media control.</p>
+      <div class="badges">
+        <span class="badge">BLE Keyboard (HID)</span>
+        <span class="badge">ESP32 Stamp-Pico (M5)</span>
+        <span class="badge">On-device Wi-Fi setup</span>
+      </div>
+      <p style="margin-top:10px">🔗 Project site: <a href="https://hagayb.wixsite.com/advrallybt" target="_blank" rel="noopener">hagayb.wixsite.com/advrallybt</a></p>
+    </header>
+
+    <section id="purpose">
+      <h2>Purpose</h2>
+      <p>The AdvRallyBT controller is built for <strong>motorcycle riders</strong> seeking simple, reliable handlebar control.</p>
+      <div class="grid-2">
+        <div class="callout ok">
+          <div>✅ <strong>Primary:</strong> Rally roadbook apps (e.g., <em>Piste Roadbook</em> on Android, <em>Rally Roadbook</em> on Apple tablet)</div>
+        </div>
+        <div class="callout ok">
+          <div>🎯 <strong>Secondary:</strong> Navigation apps (e.g., <em>OsmAnd</em>) &middot; <strong>Everyday:</strong> Media & Zoom</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="versions">
+      <h2>Versions</h2>
+      <ul>
+        <li><strong>Enduro:</strong> Left-handlebar mount, <strong>3 buttons + 1 toggle</strong> (<em>5 functions</em>)</li>
+        <li><strong>Adventure:</strong> Under left-handlebar, <strong>1 button + 2 toggles</strong> (<em>5 functions</em>)</li>
+        <li><strong>Adventure Pro:</strong> Under left-handlebar, <strong>1 joystick + 1 toggle + 1 button</strong> (<em>8 functions</em>)</li>
+      </ul>
+    </section>
+
+    <section id="technology">
+      <h2>Technology</h2>
+      <ul>
+        <li><strong>Controller:</strong> Arduino ESP32 Stamp-Pico (M5)</li>
+        <li><strong>Bluetooth Profile:</strong> BLE Keyboard (HID)</li>
+        <li><strong>Configuration:</strong> Built-in Wi-Fi Access Point with setup page</li>
+        <li><strong>Quick changes:</strong> Key combinations on the unit</li>
+      </ul>
+    </section>
+
+    <section id="quick-start">
+      <h2>Quick Start</h2>
+      <ol>
+        <li><strong>Power On:</strong> Connect USB power. Status LED slow-blinks when Bluetooth is not connected. A temporary Wi-Fi AP starts for 2 minutes.</li>
+        <li><strong>Pair over Bluetooth:</strong> On the phone/tablet, scan and select <code class="k">AdvRallyBT8xx</code> (xx = unit number). Accept prompts (iOS may require confirmation). RGB LED shows <strong>BLUE</strong> when connected.</li>
+        <li><strong>Wi-Fi setup page (optional):</strong> Connect to AP while active:
+          <ul>
+            <li>SSID: <code class="k">AdvRallyBT8xx</code> &nbsp; Password: <code class="k">12345678</code></li>
+            <li>Open <code class="k">http://192.168.4.1/</code></li>
+            <li>Set Active Mode (1–3), update key mappings (incl. second push), reset/restore defaults, and adjust LED brightness.</li>
+          </ul>
+        </li>
+      </ol>
+      <p class="callout warn">⚠️ The AP auto-turns off after 2 minutes of inactivity. You can bring it back using a key combination (see <a href="#on-the-road">On-the-Road Configuration</a>).</p>
+    </section>
+
+    <section id="mapping">
+      <h2>Default Button Mapping</h2>
+      <div class="grid-2">
+        <div>
+          <h3>Enduro (5 functions)</h3>
+          <ul>
+            <li><span class="chip">Top Button</span> <span class="chip">Center Button</span> <span class="chip">Bottom Button</span></li>
+            <li><span class="chip">Toggle Up</span> <span class="chip">Toggle Down</span></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Adventure (5 functions)</h3>
+          <ul>
+            <li><span class="chip">Main Button</span></li>
+            <li><span class="chip">Toggle 1 Left/Right</span></li>
+            <li><span class="chip">Toggle 2 Up/Down</span></li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <h3>Adventure Pro (8 functions)</h3>
+        <ul>
+          <li>Joystick: Up, Down, Left, Right, Push</li>
+          <li>Toggle Up / Toggle Down, Button</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="modes">
+      <h2>Three Operating Modes & Default Actions</h2>
+      <div class="grid-2">
+        <div>
+          <h3>Mode 1 — Media / Zoom</h3>
+          <ul>
+            <li>Up/Down = Volume &middot; Left/Right = Previous/Next track</li>
+            <li>Push = Play/Pause</li>
+            <li>Toggle Up/Down = Volume Up/Down</li>
+            <li>(Pro) Extra Button = Mute</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Mode 2 — Navigation / OsmAnd</h3>
+          <ul>
+            <li>Up/Down/Left/Right = Arrow keys</li>
+            <li>Push = Enter (second action = <code class="k">c</code>)</li>
+            <li>Toggle Up/Down = <code class="k">+</code> / <code class="k">-</code></li>
+            <li>(Pro) Extra Button = <code class="k">d</code></li>
+          </ul>
+        </div>
+      </div>
+      <h3>Mode 3 — Customizable</h3>
+      <p>Pre-mapped to demo/test keys (e.g., <code class="k">B</code>, <code class="k">T</code>, <code class="k">&amp;</code>, etc.). Easily remap in the Wi-Fi UI.</p>
+    </section>
+
+    <section id="on-the-road">
+      <h2>On-the-Road Configuration</h2>
+      <ul>
+        <li><strong>Enter config mode</strong> (hold ≥ 2s):
+          <ul>
+            <li><strong>Enduro:</strong> <em>Toggle Up + Top Button</em></li>
+            <li><strong>Adventure:</strong> <em>Toggle 1 Left + Main Button</em></li>
+            <li><strong>Adventure Pro:</strong> <em>Joystick Push + Button</em></li>
+          </ul>
+        </li>
+        <li><strong>While LED blinks rapidly:</strong>
+          <ul>
+            <li>Joystick Right → Next Mode (1→2→3)</li>
+            <li>Joystick Left → Previous Mode (3→2→1)</li>
+            <li>Joystick Push → Restart Wi-Fi AP</li>
+            <li>Joystick Up/Down → LED brightness</li>
+          </ul>
+        </li>
+      </ul>
+    </section>
+
+    <section id="reset">
+      <h2>Factory Reset</h2>
+      <p><strong>Unpair button</strong> (<code class="k">GPIO39</code>) — Hold &gt; 3 s → rapid blink ×10. Clears all Bluetooth bonds and device settings, then restarts.</p>
+    </section>
+
+    <section id="led">
+      <h2>LED Indicators</h2>
+      <ul>
+        <li><strong>Main LED:</strong> short flash on key release, slow blink when Bluetooth is not connected, fast blink in config mode, 1/2/3 blinks confirm Mode 1/2/3.</li>
+        <li><strong>RGB SK6812:</strong> <span class="chip">Blue = BT connected</span> <span class="chip">Green = Wi-Fi AP active</span> <span class="chip">Red = recent web activity</span></li>
+      </ul>
+    </section>
+
+    <section id="pinout">
+      <h2>Pinout / Wiring Reference (ESP32)</h2>
+      <table class="kv" role="table" aria-label="ESP32 Pinout">
+        <thead><tr><th>GPIO</th><th>Function</th></tr></thead>
+        <tbody>
+          <tr><td>GPIO26</td><td>Up / Top Button</td></tr>
+          <tr><td>GPIO18</td><td>Down / Bottom Button</td></tr>
+          <tr><td>GPIO21</td><td>Left / Center Button</td></tr>
+          <tr><td>GPIO19</td><td>Right</td></tr>
+          <tr><td>GPIO22</td><td>Push</td></tr>
+          <tr><td>GPIO25</td><td>Main LED (PWM)</td></tr>
+          <tr><td>GPIO27</td><td>RGB LED (SK6812 DIN)</td></tr>
+          <tr><td>GPIO39</td><td>Unpair (input-only)</td></tr>
+          <tr><td>GPIO01</td><td>Toggle Up <em>(Pro 8 functions only)</em></td></tr>
+          <tr><td>GPIO03</td><td>Toggle Down <em>(Pro 8 functions only)</em></td></tr>
+          <tr><td>GPIO00</td><td>Extra Button <em>(Pro 8 functions only)</em></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="apps">
+      <h2>Notes for Apps</h2>
+      <ul>
+        <li><strong>Roadbook apps:</strong> Customize Mode 1 mappings to match Piste/Rally Roadbook key bindings.</li>
+        <li><strong>Navigation (OsmAnd):</strong> Mode 2 provides arrows and Enter; adjust to taste in the web UI.</li>
+      </ul>
+    </section>
+
+    <section id="troubleshooting">
+      <h2>Troubleshooting</h2>
+      <details>
+        <summary><strong>Can’t see the setup page?</strong></summary>
+        <ul>
+          <li>Connect to AP <code class="k">AdvRallyBT8xx</code> and open <code class="k">http://192.168.4.1/</code>.</li>
+          <li>If the AP timed out, power-cycle or use the key combo to restart Wi-Fi AP.</li>
+        </ul>
+      </details>
+      <details>
+        <summary><strong>No Bluetooth actions?</strong></summary>
+        <ul>
+          <li>Verify the device is paired and connected (RGB shows <strong>Blue</strong>).</li>
+          <li>Some apps only receive keys when they’re in focus.</li>
+          <li>Requires Apple OS / Android 13 or higher.</li>
+        </ul>
+      </details>
+      <details>
+        <summary><strong>Factory reset</strong></summary>
+        <p>Hold <code class="k">GPIO39</code> &gt; 3 s → clears bonds and settings, then reboots.</p>
+      </details>
+    </section>
+
+    <section id="legal">
+      <h2>Legal &amp; Safety</h2>
+      <p>The code and design are proprietary to <strong>Hagay Ben-Tovim</strong>. All rights reserved.</p>
+      <p>For personal use on public roads, obey local laws and ride safely. Test controls off-road before riding.</p>
+    </section>
+
+    <section id="notes" aria-label="Notes">
+      <h2>Notes</h2>
+      <div class="print-blank" aria-hidden="true"></div>
+    </section>
+    <footer class="callout" style="margin-top:18px">
+      <div>© <script>document.write(new Date().getFullYear())</script> AdvRallyBT · <a href="https://hagayb.wixsite.com/advrallybt" target="_blank" rel="noopener">Project Site</a></div>
+    </footer>
+  </main>
+</div>
+
+<script>
+// Stable active-section highlighting for TOC
+(function(){
+  const links = Array.from(document.querySelectorAll('nav.toc a'));
+  if (!links.length) return;
+  const sections = links.map(a => {
+    const el = document.querySelector(a.getAttribute('href'));
+    return el ? { id: el.id, el, link: a, top: 0, bottom: 0 } : null;
+  }).filter(Boolean);
+
+  let ticking = false;
+  let currentId = null;
+
+  function recalcTops(){
+    sections.forEach(s => {
+      const rect = s.el.getBoundingClientRect();
+      s.top = rect.top + window.scrollY;
+      s.bottom = s.top + s.el.offsetHeight;
+    });
+  }
+
+  function setActive(id){
+    if (!id || id === currentId) return;
+    currentId = id;
+    sections.forEach(s => s.link.classList.toggle('active', s.id === id));
+  }
+
+  function updateActive(){
+    const anchor = window.scrollY + window.innerHeight * 0.35; // focus ~top third
+    let best = sections[0];
+    for (const s of sections){
+      if (s.top <= anchor) best = s; else break; // sections are in document order
+    }
+    setActive(best && best.id);
+  }
+
+  function onScroll(){
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => { updateActive(); ticking = false; });
+  }
+
+  recalcTops();
+  updateActive();
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', () => { recalcTops(); updateActive(); });
+  window.addEventListener('load', () => { recalcTops(); updateActive(); });
+})();
+</script>
+</body>
+</html>
